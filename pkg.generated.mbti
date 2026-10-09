@@ -1,0 +1,50 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "Administrator/moonflux"
+
+// Values
+pub fn encode_point(Point) -> Result[String, String]
+
+pub fn encode_points(Array[Point]) -> Result[String, String]
+
+pub fn escape_key_like(String) -> String
+
+pub fn escape_measurement(String) -> String
+
+pub fn escape_string_field(String) -> String
+
+pub fn new_point(String) -> Point
+
+pub fn parse_line(String) -> Result[Point, String]
+
+pub fn parse_lines(String) -> Result[Array[Point], String]
+
+pub fn unescape_key_like(String) -> String
+
+pub fn unescape_measurement(String) -> String
+
+pub fn unescape_string_field(String) -> String
+
+// Errors
+
+// Types and methods
+pub(all) enum FieldValue {
+  IntValue(Int64)
+  UIntValue(UInt64)
+  DoubleValue(Double)
+  StringValue(String)
+  BoolValue(Bool)
+}
+
+pub(all) struct Point {
+  measurement : String
+  tags : Array[(String, String)]
+  fields : Array[(String, FieldValue)]
+  timestamp : Int64?
+}
+pub fn Point::add_field(Self, String, FieldValue) -> Self
+pub fn Point::add_tag(Self, String, String) -> Self
+pub fn Point::set_timestamp(Self, Int64) -> Self
+
+// Type aliases
+
+// Traits
