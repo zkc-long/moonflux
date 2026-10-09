@@ -1,5 +1,5 @@
 // Generated using `moon info`, DON'T EDIT IT
-package "Administrator/moonflux"
+package "zkc-long/moonflux"
 
 // Values
 pub fn encode_point(Point) -> Result[String, String]
@@ -14,6 +14,8 @@ pub fn escape_string_field(String) -> String
 
 pub fn new_point(String) -> Point
 
+pub fn parse_annotated_csv(String) -> Result[AnnotatedCsv, String]
+
 pub fn parse_line(String) -> Result[Point, String]
 
 pub fn parse_lines(String) -> Result[Array[Point], String]
@@ -27,6 +29,22 @@ pub fn unescape_string_field(String) -> String
 // Errors
 
 // Types and methods
+pub(all) struct AnnotatedColumn {
+  name : String
+  data_type : String
+  group : Bool
+  default : String
+}
+
+pub(all) struct AnnotatedCsv {
+  columns : Array[AnnotatedColumn]
+  rows : Array[AnnotatedRow]
+}
+
+pub(all) struct AnnotatedRow {
+  values : Array[String]
+}
+
 pub(all) enum FieldValue {
   IntValue(Int64)
   UIntValue(UInt64)

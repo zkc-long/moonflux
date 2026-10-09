@@ -56,3 +56,22 @@ test "reject point without fields" {
   let point = @moonflux.new_point("m")
   @test.assert_eq(@moonflux.encode_point(point), Err("at least one field is required"))
 }
+
+test "parse annotated CSV" {
+  let text = "#datatype,string,long,double\n" +
+    "#group,false,false,false\n" +
+    "#default,_result,,\n" +
+    ",result,table,_value\n" +
+    ",mean,0,21.5\n" +
+    ",mean,1,22.5\n"
+  match @moonflux.parse_annotated_csv(text) {
+    Ok(parsed) => {
+      @test.assert_eq(parsed.columns.length(), 3)
+      @test.assert_eq(parsed.columns[0].name, "result")
+      @test.assert_eq(parsed.columns[2].data_type, "double")
+      @test.assert_eq(parsed.rows.length(), 2)
+      @test.assert_eq(parsed.rows[1].values[3], "22.5")
+    }
+    Err(error) => @test.fail(error)
+  }
+}
