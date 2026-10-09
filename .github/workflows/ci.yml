@@ -45,6 +45,9 @@ jobs:
       - name: Start InfluxDB
         run: docker compose up -d
 
+      - name: Update dependencies
+        run: moon update
+
       - name: Run native tests
         run: moon test --target native
 
