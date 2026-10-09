@@ -1,0 +1,5 @@
+// import {
+//   "Administrator/moonflux" @lib,
+// }
+
+pkgtype(kind: "executable")
