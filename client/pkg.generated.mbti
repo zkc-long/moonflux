@@ -1,0 +1,30 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "zkc-long/moonflux/client"
+
+import {
+  "zkc-long/moonflux",
+}
+
+// Values
+pub fn new_client(ClientConfig) -> Client
+
+// Errors
+
+// Types and methods
+pub(all) struct Client {
+  config : ClientConfig
+}
+pub async fn Client::ping(Self) -> Result[Int, String]
+pub async fn Client::query(Self, String) -> Result[@moonflux.AnnotatedCsv, String]
+pub async fn Client::write(Self, String) -> Result[Int, String]
+
+pub(all) struct ClientConfig {
+  url : String
+  token : String
+  org : String
+  bucket : String
+}
+
+// Type aliases
+
+// Traits
