@@ -29,11 +29,13 @@ moon run cmd/main -- write \
   --bucket "$MOONFLUX_BUCKET" \
   --data "weather,location=shanghai temperature=22.5,ok=true"
 
+QUERY="from(bucket: \"$MOONFLUX_BUCKET\") |> range(start: -1h) |> filter(fn: (r) => r._measurement == \"weather\")"
+
 OUTPUT="$(moon run cmd/main -- query \
   --url "$MOONFLUX_URL" \
   --token "$MOONFLUX_TOKEN" \
   --org "$MOONFLUX_ORG" \
-  --query 'from(bucket: "telemetry") |> range(start: -1h) |> filter(fn: (r) => r._measurement == "weather")')"
+  --query "$QUERY")"
 
 printf '%s\n' "$OUTPUT"
 
