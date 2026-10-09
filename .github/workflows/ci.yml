@@ -18,8 +18,36 @@ jobs:
       - name: Update dependencies
         run: moon update
 
+      - name: Format check
+        run: moon fmt --check
+
       - name: Check
-        run: moon check
+        run: moon check --deny-warn
 
       - name: Test
         run: moon test
+
+      - name: Verify generated interfaces
+        run: |
+          moon info
+          git diff --exit-code
+
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Start InfluxDB
+        run: docker compose up -d
+
+      - name: Run integration smoke test
+        run: bash scripts/integration.sh
+
+      - name: Stop InfluxDB
+        if: always()
+        run: docker compose down -v

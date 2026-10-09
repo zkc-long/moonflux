@@ -7,6 +7,7 @@ MoonFlux is a pure MoonBit InfluxDB v2 toolkit:
 - annotated CSV parser for Flux query responses
 - small HTTP client for `/health`, `/api/v2/write`, and `/api/v2/query`
 - command-line interface for ping, write, query, and encode
+- Docker-based integration smoke test against a real InfluxDB v2 instance
 
 ## Install
 
@@ -16,36 +17,63 @@ moon add zkc-long/moonflux
 
 ## Library
 
-```moonbit
+```moonbit nocheck
+///|
 let point = @moonflux.new_point("weather")
   .add_tag("location", "shanghai")
   .add_field("temperature", @moonflux.DoubleValue(21.5))
   .add_field("ok", @moonflux.BoolValue(true))
 
+///|
 let line = @moonflux.encode_point(point).unwrap()
+
+///|
 let parsed = @moonflux.parse_line(line).unwrap()
 ```
 
 For HTTP access:
 
-```moonbit
+```moonbit nocheck
+///|
 let config = @client.ClientConfig(
   url="http://localhost:8086",
   token="my-token",
   org="my-org",
   bucket="my-bucket",
 )
+
+///|
 let client = @client.new_client(config)
+
+///|
 let status = client.write(line)
 ```
+
+The client also exposes `write_with_precision` for `ns`, `us`, `ms`, or `s`
+timestamp precision.
 
 ## CLI
 
 ```text
 moon run cmd/main -- ping --url http://localhost:8086
 moon run cmd/main -- write --url http://localhost:8086 --token my-token --org my-org --bucket my-bucket --data "weather,location=shanghai temperature=21.5"
+moon run cmd/main -- write --url http://localhost:8086 --token my-token --org my-org --bucket my-bucket --file points.lp --precision ns
 moon run cmd/main -- query --url http://localhost:8086 --token my-token --org my-org --query "from(bucket: \"my-bucket\")"
 moon run cmd/main -- encode --measurement weather --field 21.5
+```
+
+CLI options fall back to `INFLUX_URL`, `INFLUX_TOKEN`, `INFLUX_ORG`, and
+`INFLUX_BUCKET`.
+
+## InfluxDB Smoke Test
+
+The MVP scope, acceptance criteria, and known boundaries are documented in
+`docs/MVP.zh-CN.md`.
+
+```text
+docker compose up -d
+bash scripts/integration.sh
+docker compose down
 ```
 
 ## Development
