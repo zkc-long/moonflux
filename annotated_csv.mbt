@@ -1,4 +1,5 @@
-///| Column metadata from an InfluxDB annotated CSV response.
+///|
+/// Column metadata from an InfluxDB annotated CSV response.
 pub(all) struct AnnotatedColumn {
   name : String
   data_type : String
@@ -6,18 +7,21 @@ pub(all) struct AnnotatedColumn {
   default : String
 }
 
-///| One data row from an annotated CSV response.
+///|
+/// One data row from an annotated CSV response.
 pub(all) struct AnnotatedRow {
   values : Array[String]
 }
 
-///| Parsed annotated CSV response.
+///|
+/// Parsed annotated CSV response.
 pub(all) struct AnnotatedCsv {
   columns : Array[AnnotatedColumn]
   rows : Array[AnnotatedRow]
 }
 
-///| Parse an InfluxDB annotated CSV response.
+///|
+/// Parse an InfluxDB annotated CSV response.
 pub fn parse_annotated_csv(text : String) -> Result[AnnotatedCsv, String] {
   let data_types : Array[String] = Array(capacity=0)
   let groups : Array[Bool] = Array(capacity=0)
@@ -65,13 +69,12 @@ pub fn parse_annotated_csv(text : String) -> Result[AnnotatedCsv, String] {
     }
 
     match parse_csv_row(clean) {
-      Ok(row) => {
+      Ok(row) =>
         if column_names.is_empty() {
           column_names = row
         } else {
           data_rows.push(row)
         }
-      }
       Err(error) => return Err(error)
     }
   }
@@ -89,12 +92,7 @@ pub fn parse_annotated_csv(text : String) -> Result[AnnotatedCsv, String] {
     }
     let group = if i < groups.length() { groups[i] } else { false }
     let default = if i < defaults.length() { defaults[i] } else { "" }
-    columns.push({
-      name: column_names[i],
-      data_type,
-      group,
-      default,
-    })
+    columns.push({ name: column_names[i], data_type, group, default, })
   }
 
   let rows : Array[AnnotatedRow] = Array(capacity=0)
@@ -102,13 +100,14 @@ pub fn parse_annotated_csv(text : String) -> Result[AnnotatedCsv, String] {
     if raw.length() != column_names.length() {
       return Err("annotated CSV row column count does not match header")
     }
-    rows.push({ values: raw })
+    rows.push({ values: raw, })
   }
 
-  Ok({ columns, rows })
+  Ok({ columns, rows, })
 }
 
-///| Parse a CSV row while respecting double quotes.
+///|
+/// Parse a CSV row while respecting double quotes.
 fn parse_csv_row(line : String) -> Result[Array[String], String] {
   let values : Array[String] = Array(capacity=0)
   let field = StringBuilder()
@@ -142,7 +141,8 @@ fn parse_csv_row(line : String) -> Result[Array[String], String] {
   Ok(values)
 }
 
-///| Parse the #group annotation, which contains true/false tokens.
+///|
+/// Parse the #group annotation, which contains true/false tokens.
 fn parse_bool_annotation(line : String) -> Result[Array[Bool], String] {
   match parse_csv_row(line) {
     Ok(values) => {

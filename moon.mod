@@ -19,7 +19,7 @@ repository = "https://github.com/zkc-long/moonflux"
 
 license = "Apache-2.0"
 
-keywords = ["influxdb", "line-protocol", "flux", "time-series"]
+keywords = [ "influxdb", "line-protocol", "flux", "time-series" ]
 
 preferred_target = "wasm"
 

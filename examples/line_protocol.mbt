@@ -1,4 +1,5 @@
-///| Encode and parse a point with MoonFlux.
+///|
+/// Encode and parse a point with MoonFlux.
 fn main {
   let point = @moonflux.new_point("weather")
     .add_tag("location", "shanghai")

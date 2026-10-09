@@ -1,5 +1,5 @@
 import {
-  "zkc-long/moonflux" @moonflux,
+  "zkc-long/moonflux",
 }
 
 pkgtype(kind: "executable")
