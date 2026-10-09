@@ -7,13 +7,14 @@ MOONFLUX_ORG="${MOONFLUX_ORG:-moonflux}"
 MOONFLUX_BUCKET="${MOONFLUX_BUCKET:-telemetry}"
 
 for _ in $(seq 1 60); do
-  if curl -fsS "$MOONFLUX_URL/health" >/dev/null; then
+  if curl -fsS "$MOONFLUX_URL/health" >/dev/null 2>&1; then
     break
   fi
   sleep 2
 done
 
-curl -fsS "$MOONFLUX_URL/health" >/dev/null
+curl -fsS "$MOONFLUX_URL/health" >/dev/null 2>&1
+moon update
 
 moon run cmd/main -- write \
   --url "$MOONFLUX_URL" \
