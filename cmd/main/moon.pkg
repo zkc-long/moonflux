@@ -1,9 +1,10 @@
 import {
-  "zkc-long/moonflux" @moonflux,
-  "zkc-long/moonflux/client" @client,
-  "moonbitlang/core/env" @env,
-  "moonbitlang/core/string" @string,
+  "zkc-long/moonflux",
+  "zkc-long/moonflux/client",
+  "moonbitlang/core/env",
+  "moonbitlang/core/string",
   "moonbitlang/async",
+  "moonbitlang/async/fs",
 }
 
 pkgtype(kind: "executable")
