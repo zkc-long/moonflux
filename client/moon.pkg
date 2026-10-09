@@ -1,4 +1,6 @@
 import {
-  "zkc-long/moonflux" @moonflux,
-  "moonbitlang/async/http" @http,
+  "zkc-long/moonflux",
+  "moonbitlang/async/http",
+  "moonbitlang/async/io",
+  "moonbitlang/core/encoding/percent",
 }

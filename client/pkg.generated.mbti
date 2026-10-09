@@ -17,6 +17,7 @@ pub(all) struct Client {
 pub async fn Client::ping(Self) -> Result[Int, String]
 pub async fn Client::query(Self, String) -> Result[@moonflux.AnnotatedCsv, String]
 pub async fn Client::write(Self, String) -> Result[Int, String]
+pub async fn Client::write_with_precision(Self, String, String) -> Result[Int, String]
 
 pub(all) struct ClientConfig {
   url : String
