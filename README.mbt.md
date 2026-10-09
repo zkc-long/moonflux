@@ -70,6 +70,9 @@ CLI options fall back to `INFLUX_URL`, `INFLUX_TOKEN`, `INFLUX_ORG`, and
 The MVP scope, acceptance criteria, and known boundaries are documented in
 `docs/MVP.zh-CN.md`.
 
+The Chinese project application draft is available at
+`docs/APPLICATION.zh-CN.md`.
+
 ```text
 docker compose up -d
 bash scripts/integration.sh
