@@ -1,3 +1,4 @@
+///|
 test "encode a complete point" {
   let point = @moonflux.new_point("weather")
     .add_tag("location", "shanghai")
@@ -5,14 +6,15 @@ test "encode a complete point" {
     .add_field("ok", @moonflux.FieldValue::BoolValue(true))
     .set_timestamp(1700000000000000000L)
   match @moonflux.encode_point(point) {
-    Ok(line) => @test.assert_eq(
-      line,
-      "weather,location=shanghai temperature=21.5,ok=true 1700000000000000000",
-    )
+    Ok(line) =>
+      @test.assert_eq(
+        line, "weather,location=shanghai temperature=21.5,ok=true 1700000000000000000",
+      )
     Err(error) => @test.fail(error)
   }
 }
 
+///|
 test "escape and parse comma measurement" {
   let point = @moonflux.new_point("a,b").add_field(
     "value",
@@ -30,6 +32,7 @@ test "escape and parse comma measurement" {
   }
 }
 
+///|
 test "parse string boolean and unsigned fields" {
   match @moonflux.parse_line("m,host=a name=\"x,y\",active=false,n=42u 100") {
     Ok(point) => {
@@ -52,11 +55,37 @@ test "parse string boolean and unsigned fields" {
   }
 }
 
+///|
 test "reject point without fields" {
   let point = @moonflux.new_point("m")
-  @test.assert_eq(@moonflux.encode_point(point), Err("at least one field is required"))
+  @test.assert_eq(
+    @moonflux.encode_point(point),
+    Err("at least one field is required"),
+  )
 }
 
+///|
+test "validate duplicate and non-finite point values" {
+  let duplicate = @moonflux.new_point("m")
+    .add_tag("host", "a")
+    .add_tag("host", "b")
+    .add_field("value", @moonflux.IntValue(1L))
+  @test.assert_eq(
+    @moonflux.validate_point(duplicate),
+    Err("duplicate tag key: host"),
+  )
+
+  let non_finite = @moonflux.new_point("m").add_field(
+    "value",
+    @moonflux.DoubleValue(@double.not_a_number),
+  )
+  @test.assert_eq(
+    @moonflux.validate_point(non_finite),
+    Err("float field must be finite: value"),
+  )
+}
+
+///|
 test "parse annotated CSV" {
   let text = "#datatype,string,long,double\n" +
     "#group,false,false,false\n" +

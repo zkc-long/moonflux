@@ -1,10 +1,9 @@
-///| Encode one point as a line-protocol row.
+///|
+/// Encode one point as a line-protocol row.
 pub fn encode_point(point : Point) -> Result[String, String] {
-  if point.measurement.is_empty() {
-    return Err("measurement must not be empty")
-  }
-  if point.fields.is_empty() {
-    return Err("at least one field is required")
+  match validate_point(point) {
+    Ok(_) => ()
+    Err(error) => return Err(error)
   }
 
   let out = StringBuilder()
@@ -40,7 +39,49 @@ pub fn encode_point(point : Point) -> Result[String, String] {
   Ok(out.to_string())
 }
 
-///| Encode many points, separated by newlines.
+///|
+/// Validate point invariants required by InfluxDB Line Protocol.
+pub fn validate_point(point : Point) -> Result[Unit, String] {
+  if point.measurement.is_empty() {
+    return Err("measurement must not be empty")
+  }
+  if point.fields.is_empty() {
+    return Err("at least one field is required")
+  }
+  for i in 0..<point.tags.length() {
+    let (key, _) = point.tags[i]
+    if key.is_empty() {
+      return Err("tag key must not be empty")
+    }
+    for j in 0..<i {
+      if point.tags[j].0 == key {
+        return Err("duplicate tag key: \{key}")
+      }
+    }
+  }
+  for i in 0..<point.fields.length() {
+    let (key, value) = point.fields[i]
+    if key.is_empty() {
+      return Err("field key must not be empty")
+    }
+    match value {
+      DoubleValue(value) =>
+        if value.is_nan() || value.is_inf() {
+          return Err("float field must be finite: \{key}")
+        }
+      _ => ()
+    }
+    for j in 0..<i {
+      if point.fields[j].0 == key {
+        return Err("duplicate field key: \{key}")
+      }
+    }
+  }
+  Ok(())
+}
+
+///|
+/// Encode many points, separated by newlines.
 pub fn encode_points(points : Array[Point]) -> Result[String, String] {
   let out = StringBuilder()
   for i in 0..<points.length() {
@@ -55,7 +96,8 @@ pub fn encode_points(points : Array[Point]) -> Result[String, String] {
   Ok(out.to_string())
 }
 
-///| Parse one line-protocol row.
+///|
+/// Parse one line-protocol row.
 pub fn parse_line(line : String) -> Result[Point, String] {
   if line.is_empty() {
     return Err("line must not be empty")
@@ -100,11 +142,10 @@ pub fn parse_line(line : String) -> Result[Point, String] {
     return Err("at least one field is required")
   }
   match parse_field_set(line[field_start:field_end].to_owned()) {
-    Ok(fields) => {
+    Ok(fields) =>
       for field in fields {
         point.fields.push(field)
       }
-    }
     Err(error) => return Err(error)
   }
 
@@ -115,7 +156,7 @@ pub fn parse_line(line : String) -> Result[Point, String] {
         return Err("timestamp must not be empty")
       }
       match try_parse_int64(raw) {
-        Ok(timestamp) => point = { ..point, timestamp: Some(timestamp) }
+        Ok(timestamp) => point = { ..point, timestamp: Some(timestamp), }
         Err(error) => return Err(error)
       }
     }
@@ -125,7 +166,8 @@ pub fn parse_line(line : String) -> Result[Point, String] {
   Ok(point)
 }
 
-///| Parse a newline-delimited line-protocol payload.
+///|
+/// Parse a newline-delimited line-protocol payload.
 pub fn parse_lines(text : String) -> Result[Array[Point], String] {
   let points : Array[Point] = Array(capacity=0)
   for line in text.split("\n") {
@@ -141,7 +183,8 @@ pub fn parse_lines(text : String) -> Result[Array[Point], String] {
   Ok(points)
 }
 
-///| Return the first unescaped occurrence of an ASCII code, or None.
+///|
+/// Return the first unescaped occurrence of an ASCII code, or None.
 fn find_unescaped(value : String, start : Int, target : Int) -> Int? {
   let mut escaped = false
   for i in start..<value.length() {
@@ -157,7 +200,8 @@ fn find_unescaped(value : String, start : Int, target : Int) -> Int? {
   None
 }
 
-///| Like find_unescaped, but treats double-quoted string fields as opaque.
+///|
+/// Like find_unescaped, but treats double-quoted string fields as opaque.
 fn find_field_unescaped(value : String, start : Int, target : Int) -> Int? {
   let mut escaped = false
   let mut in_string = false
@@ -171,22 +215,21 @@ fn find_field_unescaped(value : String, start : Int, target : Int) -> Int? {
       } else if code == 34 {
         in_string = false
       }
-    } else {
-      if escaped {
-        escaped = false
-      } else if code == 92 {
-        escaped = true
-      } else if code == 34 {
-        in_string = true
-      } else if code == target {
-        return Some(i)
-      }
+    } else if escaped {
+      escaped = false
+    } else if code == 92 {
+      escaped = true
+    } else if code == 34 {
+      in_string = true
+    } else if code == target {
+      return Some(i)
     }
   }
   None
 }
 
-///| Parse the tag set between a leading comma and the next space.
+///|
+/// Parse the tag set between a leading comma and the next space.
 fn parse_tag_set(
   line : String,
   start : Int,
@@ -212,10 +255,9 @@ fn parse_tag_set(
   }
 }
 
-///| Parse tag or field pairs.
-fn parse_pairs(
-  content : String,
-) -> Result[Array[(String, String)], String] {
+///|
+/// Parse tag or field pairs.
+fn parse_pairs(content : String) -> Result[Array[(String, String)], String] {
   let pairs : Array[(String, String)] = Array(capacity=0)
   let mut start = 0
   while start < content.length() {
@@ -242,8 +284,11 @@ fn parse_pairs(
   Ok(pairs)
 }
 
-///| Parse the field set.
-fn parse_field_set(content : String) -> Result[Array[(String, FieldValue)], String] {
+///|
+/// Parse the field set.
+fn parse_field_set(
+  content : String,
+) -> Result[Array[(String, FieldValue)], String] {
   let fields : Array[(String, FieldValue)] = Array(capacity=0)
   let mut start = 0
   while start < content.length() {
@@ -273,7 +318,8 @@ fn parse_field_set(content : String) -> Result[Array[(String, FieldValue)], Stri
   Ok(fields)
 }
 
-///| Convert a field value to line-protocol text.
+///|
+/// Convert a field value to line-protocol text.
 fn field_value_to_protocol(value : FieldValue) -> String {
   match value {
     IntValue(value) => value.to_string() + "i"
@@ -284,15 +330,16 @@ fn field_value_to_protocol(value : FieldValue) -> String {
   }
 }
 
-///| Parse an InfluxDB field value.
+///|
+/// Parse an InfluxDB field value.
 fn parse_field_value(raw : String) -> Result[FieldValue, String] {
   if raw.has_prefix("\"") {
     if raw.length() < 2 || !raw.has_suffix("\"") {
       return Err("unterminated string field")
     }
-    return Ok(StringValue(
-      unescape_string_field(raw[1:raw.length() - 1].to_owned()),
-    ))
+    return Ok(
+      StringValue(unescape_string_field(raw[1:raw.length() - 1].to_owned())),
+    )
   }
 
   let lower = raw.to_lower()
@@ -324,29 +371,26 @@ fn parse_field_value(raw : String) -> Result[FieldValue, String] {
   }
 }
 
-///| Parse an Int64 without leaking parser exceptions.
+///|
+/// Parse an Int64 without leaking parser exceptions.
 fn try_parse_int64(text : String) -> Result[Int64, String] {
-  try {
-    Ok(@string.parse_int64(text))
-  } catch {
+  Ok(@string.parse_int64(text)) catch {
     _ => Err("invalid integer \{text}")
   }
 }
 
-///| Parse a UInt64 without leaking parser exceptions.
+///|
+/// Parse a UInt64 without leaking parser exceptions.
 fn try_parse_uint64(text : String) -> Result[UInt64, String] {
-  try {
-    Ok(@string.parse_uint64(text))
-  } catch {
+  Ok(@string.parse_uint64(text)) catch {
     _ => Err("invalid unsigned integer \{text}")
   }
 }
 
-///| Parse a Double without leaking parser exceptions.
+///|
+/// Parse a Double without leaking parser exceptions.
 fn try_parse_double(text : String) -> Result[Double, String] {
-  try {
-    Ok(@string.parse_double(text))
-  } catch {
+  Ok(@string.parse_double(text)) catch {
     _ => Err("invalid float \{text}")
   }
 }

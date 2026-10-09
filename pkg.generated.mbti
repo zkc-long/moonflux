@@ -26,6 +26,8 @@ pub fn unescape_measurement(String) -> String
 
 pub fn unescape_string_field(String) -> String
 
+pub fn validate_point(Point) -> Result[Unit, String]
+
 // Errors
 
 // Types and methods
