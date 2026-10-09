@@ -55,11 +55,11 @@ timestamp precision.
 ## CLI
 
 ```text
-moon run cmd/main -- ping --url http://localhost:8086
-moon run cmd/main -- write --url http://localhost:8086 --token my-token --org my-org --bucket my-bucket --data "weather,location=shanghai temperature=21.5"
-moon run cmd/main -- write --url http://localhost:8086 --token my-token --org my-org --bucket my-bucket --file points.lp --precision ns
-moon run cmd/main -- query --url http://localhost:8086 --token my-token --org my-org --query "from(bucket: \"my-bucket\")"
-moon run cmd/main -- encode --measurement weather --field 21.5
+moon run --target native cmd/main -- ping --url http://localhost:8086
+moon run --target native cmd/main -- write --url http://localhost:8086 --token my-token --org my-org --bucket my-bucket --data "weather,location=shanghai temperature=21.5"
+moon run --target native cmd/main -- write --url http://localhost:8086 --token my-token --org my-org --bucket my-bucket --file points.lp --precision ns
+moon run --target native cmd/main -- query --url http://localhost:8086 --token my-token --org my-org --query "from(bucket: \"my-bucket\")"
+moon run --target native cmd/main -- encode --measurement weather --field 21.5
 ```
 
 CLI options fall back to `INFLUX_URL`, `INFLUX_TOKEN`, `INFLUX_ORG`, and

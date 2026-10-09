@@ -16,14 +16,14 @@ done
 curl -fsS "$MOONFLUX_URL/health" >/dev/null 2>&1
 moon update
 
-moon run cmd/main -- write \
+moon run --target native cmd/main -- write \
   --url "$MOONFLUX_URL" \
   --token "$MOONFLUX_TOKEN" \
   --org "$MOONFLUX_ORG" \
   --bucket "$MOONFLUX_BUCKET" \
   --data "weather,location=shanghai temperature=21.5,ok=true"
 
-moon run cmd/main -- write \
+moon run --target native cmd/main -- write \
   --url "$MOONFLUX_URL" \
   --token "$MOONFLUX_TOKEN" \
   --org "$MOONFLUX_ORG" \
@@ -32,7 +32,7 @@ moon run cmd/main -- write \
 
 QUERY="from(bucket: \"$MOONFLUX_BUCKET\") |> range(start: -1h) |> filter(fn: (r) => r._measurement == \"weather\")"
 
-OUTPUT="$(moon run cmd/main -- query \
+OUTPUT="$(moon run --target native cmd/main -- query \
   --url "$MOONFLUX_URL" \
   --token "$MOONFLUX_TOKEN" \
   --org "$MOONFLUX_ORG" \
