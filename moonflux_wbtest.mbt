@@ -1,3 +1,5 @@
+#warnings("-core_package_not_imported")
+
 test "field value suffix detection" {
   match parse_field_value("17i") {
     Ok(IntValue(value)) => @test.assert_eq(value, 17L)

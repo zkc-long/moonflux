@@ -1,5 +1,9 @@
-// import {
-//   "Administrator/moonflux" @lib,
-// }
+import {
+  "zkc-long/moonflux" @moonflux,
+  "zkc-long/moonflux/client" @client,
+  "moonbitlang/core/env" @env,
+  "moonbitlang/core/string" @string,
+  "moonbitlang/async",
+}
 
 pkgtype(kind: "executable")
