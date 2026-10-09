@@ -4,3 +4,5 @@ import {
   "moonbitlang/async/io",
   "moonbitlang/core/encoding/percent",
 }
+
+supported_targets = "+native+js"
