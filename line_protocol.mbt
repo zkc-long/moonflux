@@ -185,7 +185,7 @@ pub fn parse_lines(text : String) -> Result[Array[Point], String] {
 
 ///|
 /// Return the first unescaped occurrence of an ASCII code, or None.
-fn find_unescaped(value : String, start : Int, target : Int) -> Int? {
+fn find_unescaped(value : String, start : Int32, target : Int32) -> Int32? {
   let mut escaped = false
   for i in start..<value.length() {
     let code = value.at(i).to_int()
@@ -202,7 +202,11 @@ fn find_unescaped(value : String, start : Int, target : Int) -> Int? {
 
 ///|
 /// Like find_unescaped, but treats double-quoted string fields as opaque.
-fn find_field_unescaped(value : String, start : Int, target : Int) -> Int? {
+fn find_field_unescaped(
+  value : String,
+  start : Int32,
+  target : Int32,
+) -> Int32? {
   let mut escaped = false
   let mut in_string = false
   for i in start..<value.length() {
@@ -232,9 +236,9 @@ fn find_field_unescaped(value : String, start : Int, target : Int) -> Int? {
 /// Parse the tag set between a leading comma and the next space.
 fn parse_tag_set(
   line : String,
-  start : Int,
+  start : Int32,
   point : Point,
-) -> Result[(Point, Int), String] {
+) -> Result[(Point, Int32), String] {
   let content_start = start + 1
   let end = match find_unescaped(line, content_start, 32) {
     Some(index) => index

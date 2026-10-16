@@ -21,7 +21,7 @@ pub fn new_client(config : ClientConfig) -> Client {
 
 ///|
 /// Ping the InfluxDB /health endpoint and return the HTTP status.
-pub async fn Client::ping(self : Client) -> Result[Int, String] {
+pub async fn Client::ping(self : Client) -> Result[Int32, String] {
   try {
     let url = base_url(self) + "/health"
     let (response, body) = @http.get(url)
@@ -39,7 +39,10 @@ pub async fn Client::ping(self : Client) -> Result[Int, String] {
 
 ///|
 /// Write a line-protocol payload to the configured bucket.
-pub async fn Client::write(self : Client, line : String) -> Result[Int, String] {
+pub async fn Client::write(
+  self : Client,
+  line : String,
+) -> Result[Int32, String] {
   self.write_with_precision(line, "ns")
 }
 
@@ -49,7 +52,7 @@ pub async fn Client::write_with_precision(
   self : Client,
   line : String,
   precision : String,
-) -> Result[Int, String] {
+) -> Result[Int32, String] {
   try {
     let headers : Map[@http.CaseInsensitiveString, String] = Map([
       ("Authorization", "Token " + self.config.token),

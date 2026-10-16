@@ -1,5 +1,8 @@
 name: ci
 
+env:
+  MOONBIT_INSTALL_VERSION: 0.1.20261012
+
 on:
   push:
   pull_request:

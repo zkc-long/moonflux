@@ -124,19 +124,19 @@ pub fn parse_flux_query_result(
 
 ///|
 /// Number of tables in a Flux result.
-pub fn FluxQueryResult::table_count(self : FluxQueryResult) -> Int {
+pub fn FluxQueryResult::table_count(self : FluxQueryResult) -> Int32 {
   self.tables.length()
 }
 
 ///|
 /// Number of data rows in a Flux table.
-pub fn FluxTable::row_count(self : FluxTable) -> Int {
+pub fn FluxTable::row_count(self : FluxTable) -> Int32 {
   self.rows.length()
 }
 
 ///|
 /// Find a column index by name.
-pub fn FluxTable::column_index(self : FluxTable, name : String) -> Int? {
+pub fn FluxTable::column_index(self : FluxTable, name : String) -> Int32? {
   for i in 0..<self.columns.length() {
     if self.columns[i].name == name {
       return Some(i)
@@ -155,7 +155,7 @@ pub fn FluxTable::column_names(self : FluxTable) -> Array[String] {
 /// Return the group-key columns for one row.
 pub fn FluxTable::group_pairs(
   self : FluxTable,
-  row_index : Int,
+  row_index : Int32,
 ) -> Array[(String, String)] {
   let pairs : Array[(String, String)] = Array(capacity=0)
   if row_index >= self.rows.length() {
@@ -175,7 +175,10 @@ pub fn FluxTable::group_pairs(
 
 ///|
 /// Render group keys as a stable display string.
-pub fn FluxTable::group_key_string(self : FluxTable, row_index : Int) -> String {
+pub fn FluxTable::group_key_string(
+  self : FluxTable,
+  row_index : Int32,
+) -> String {
   let pairs = self.group_pairs(row_index)
   let parts : Array[String] = Array(capacity=0)
   for pair in pairs {
@@ -188,7 +191,7 @@ pub fn FluxTable::group_key_string(self : FluxTable, row_index : Int) -> String 
 /// Return a named string value from one row.
 pub fn FluxTable::string_value(
   self : FluxTable,
-  row_index : Int,
+  row_index : Int32,
   column_name : String,
 ) -> String? {
   match self.column_index(column_name) {
@@ -484,7 +487,7 @@ fn parse_group_annotation(
 /// Return one annotation value or a default.
 fn annotation_string(
   values : Array[String]?,
-  index : Int,
+  index : Int32,
   default : String,
 ) -> String {
   match values {
@@ -500,7 +503,11 @@ fn annotation_string(
 
 ///|
 /// Return one boolean annotation value or a default.
-fn annotation_bool(values : Array[Bool]?, index : Int, default : Bool) -> Bool {
+fn annotation_bool(
+  values : Array[Bool]?,
+  index : Int32,
+  default : Bool,
+) -> Bool {
   match values {
     Some(values) =>
       if index < values.length() {
