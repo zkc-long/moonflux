@@ -12,9 +12,17 @@ pub fn escape_measurement(String) -> String
 
 pub fn escape_string_field(String) -> String
 
+pub fn flux_query_result_json(FluxQueryResult) -> String
+
+pub fn flux_value_display(FluxValue) -> String
+
+pub fn flux_value_json(FluxValue) -> String
+
 pub fn new_point(String) -> Point
 
 pub fn parse_annotated_csv(String) -> Result[AnnotatedCsv, String]
+
+pub fn parse_flux_query_result(String) -> Result[FluxQueryResult, String]
 
 pub fn parse_line(String) -> Result[Point, String]
 
@@ -53,6 +61,49 @@ pub(all) enum FieldValue {
   DoubleValue(Double)
   StringValue(String)
   BoolValue(Bool)
+}
+
+pub(all) struct FluxCell {
+  raw : String
+  value : FluxValue
+}
+
+pub(all) struct FluxColumn {
+  name : String
+  data_type : String
+  group : Bool
+  default : String
+}
+
+pub(all) struct FluxQueryResult {
+  tables : Array[FluxTable]
+}
+pub fn FluxQueryResult::table_count(Self) -> Int
+
+pub(all) struct FluxTable {
+  columns : Array[FluxColumn]
+  rows : Array[Array[FluxCell]]
+}
+pub fn FluxTable::column_index(Self, String) -> Int?
+pub fn FluxTable::column_names(Self) -> Array[String]
+pub fn FluxTable::field(Self) -> String?
+pub fn FluxTable::group_key_string(Self, Int) -> String
+pub fn FluxTable::group_pairs(Self, Int) -> Array[(String, String)]
+pub fn FluxTable::measurement(Self) -> String?
+pub fn FluxTable::row_count(Self) -> Int
+pub fn FluxTable::string_value(Self, Int, String) -> String?
+pub fn FluxTable::table_id(Self) -> String?
+
+pub(all) enum FluxValue {
+  StringValue(String)
+  LongValue(Int64)
+  UnsignedLongValue(UInt64)
+  DoubleValue(Double)
+  BooleanValue(Bool)
+  DateTimeValue(String)
+  DurationValue(String)
+  Base64BinaryValue(String)
+  UnknownValue(String)
 }
 
 pub(all) struct Point {
