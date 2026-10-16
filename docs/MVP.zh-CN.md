@@ -13,10 +13,12 @@
 - Line Protocol 解析，覆盖转义、引号字段、tag 和可选 timestamp
 - Point 校验，拒绝空 measurement、空字段集、空 key、重复 key 和非有限浮点数
 - InfluxDB annotated CSV 解析，保留 `#datatype`、`#group`、`#default` 元数据
+- 多表 Flux 查询结果解析：表边界、每表独立 schema、typed cells、group key 和 JSON 输出
 - InfluxDB v2 HTTP 客户端
   - `GET /health`
   - `POST /api/v2/write`
-  - `POST /api/v2/query`
+- `POST /api/v2/query`
+- `POST /api/v2/query` 的多表结果语义解释
 - URL 参数百分号编码，支持带空格或斜杠的 org、bucket 和 precision
 - 写失败时返回状态码和服务端错误正文，而不是把 4xx/5xx 当作成功
 - CLI 的 `ping`、`write`、`query`、`encode` 命令
