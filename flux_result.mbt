@@ -60,8 +60,10 @@ pub fn parse_flux_query_result(
   for record in records {
     if is_blank_record(record) {
       match flush_flux_table(header, data_types, groups, defaults, raw_rows) {
-        Ok(Some(table)) => tables.push(table)
-        Ok(None) => ()
+        Ok(section_tables) =>
+          for table in section_tables {
+            tables.push(table)
+          }
         Err(error) => return Err(error)
       }
       header = None
@@ -80,8 +82,10 @@ pub fn parse_flux_query_result(
         Some(_) => {
           match
             flush_flux_table(header, data_types, groups, defaults, raw_rows) {
-            Ok(Some(table)) => tables.push(table)
-            Ok(None) => ()
+            Ok(section_tables) =>
+              for table in section_tables {
+                tables.push(table)
+              }
             Err(error) => return Err(error)
           }
           header = None
@@ -115,8 +119,10 @@ pub fn parse_flux_query_result(
   }
 
   match flush_flux_table(header, data_types, groups, defaults, raw_rows) {
-    Ok(Some(table)) => tables.push(table)
-    Ok(None) => ()
+    Ok(section_tables) =>
+      for table in section_tables {
+        tables.push(table)
+      }
     Err(error) => return Err(error)
   }
   Ok({ tables, })
@@ -313,14 +319,14 @@ pub fn flux_query_result_json(result : FluxQueryResult) -> String {
 }
 
 ///|
-/// Build one table from its header, annotations, and raw rows.
-fn make_flux_table(
+/// Build logical tables from one annotated CSV section.
+fn make_flux_tables(
   header : Array[String],
   data_types : Array[String]?,
   groups : Array[Bool]?,
   defaults : Array[String]?,
   raw_rows : Array[Array[String]],
-) -> Result[FluxTable, String] {
+) -> Result[Array[FluxTable], String] {
   let columns : Array[FluxColumn] = Array(capacity=0)
   for column_index in 1..<header.length() {
     columns.push({
@@ -331,7 +337,17 @@ fn make_flux_table(
     })
   }
 
-  let rows : Array[Array[FluxCell]] = Array(capacity=0)
+  let mut table_column_index : Int32? = None
+  for column_index in 0..<columns.length() {
+    if columns[column_index].name == "table" {
+      table_column_index = Some(column_index)
+      break
+    }
+  }
+
+  let out : Array[FluxTable] = Array(capacity=0)
+  let mut rows : Array[Array[FluxCell]] = Array(capacity=0)
+  let mut current_table_id : String? = None
   for row_index in 0..<raw_rows.length() {
     let raw_row = raw_rows[row_index]
     if raw_row.length() != header.length() {
@@ -354,9 +370,28 @@ fn make_flux_table(
           )
       }
     }
+
+    match table_column_index {
+      Some(table_index) => {
+        let table_id = cells[table_index].raw
+        match current_table_id {
+          Some(previous) =>
+            if previous != table_id {
+              out.push({ columns, rows, })
+              rows = Array(capacity=0)
+            }
+          None => ()
+        }
+        current_table_id = Some(table_id)
+      }
+      None => ()
+    }
     rows.push(cells)
   }
-  Ok({ columns, rows, })
+  if rows.length() > 0 || out.length() == 0 {
+    out.push({ columns, rows, })
+  }
+  Ok(out)
 }
 
 ///|
@@ -527,12 +562,12 @@ fn flush_flux_table(
   groups : Array[Bool]?,
   defaults : Array[String]?,
   raw_rows : Array[Array[String]],
-) -> Result[FluxTable?, String] {
+) -> Result[Array[FluxTable], String] {
   match header {
-    None => Ok(None)
+    None => Ok(Array(capacity=0))
     Some(header) =>
-      match make_flux_table(header, data_types, groups, defaults, raw_rows) {
-        Ok(table) => Ok(Some(table))
+      match make_flux_tables(header, data_types, groups, defaults, raw_rows) {
+        Ok(tables) => Ok(tables)
         Err(error) => Err(error)
       }
   }

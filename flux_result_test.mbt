@@ -57,6 +57,32 @@ test "render multi-table Flux result as JSON" {
 }
 
 ///|
+test "split one section by table column" {
+  let csv = "#datatype,string,long,dateTime:RFC3339,long,string,string,string\n" +
+    "#group,false,false,false,false,true,true,true\n" +
+    "#default,_result,,,,,,,\n" +
+    ",result,table,_time,_value,_field,_measurement,host\n" +
+    ",,0,2026-10-16T00:00:00Z,35,pm25,air,host-a\n" +
+    ",,1,2026-10-16T00:00:00Z,48,pm25,air,host-b\n"
+  match @moonflux.parse_flux_query_result(csv) {
+    Ok(result) => {
+      @test.assert_eq(result.table_count(), 2)
+      @test.assert_eq(result.tables[0].table_id(), Some("0"))
+      @test.assert_eq(result.tables[1].table_id(), Some("1"))
+      @test.assert_eq(
+        result.tables[0].group_key_string(0),
+        "_field=pm25, _measurement=air, host=host-a",
+      )
+      @test.assert_eq(
+        result.tables[1].group_key_string(0),
+        "_field=pm25, _measurement=air, host=host-b",
+      )
+    }
+    Err(error) => @test.fail(error)
+  }
+}
+
+///|
 test "reject invalid annotated CSV types" {
   let csv = "#datatype,string,long,double\n" +
     "#group,false,false,false\n" +
