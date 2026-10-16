@@ -98,6 +98,34 @@ pub async fn Client::query(
 }
 
 ///|
+/// Run a Flux query and decode all result tables and typed cells.
+pub async fn Client::query_flux(
+  self : Client,
+  flux : String,
+) -> Result[@moonflux.FluxQueryResult, String] {
+  try {
+    let headers : Map[@http.CaseInsensitiveString, String] = Map([
+      ("Authorization", "Token " + self.config.token),
+      ("Accept", "application/csv"),
+      ("Content-Type", "application/vnd.flux"),
+    ])
+    let url = query_url(self)
+    let (response, body) = @http.post(url, flux, headers~)
+    if response.code < 200 || response.code >= 300 {
+      return Err(
+        "InfluxDB query failed with status \{response.code}: " + body_text(body),
+      )
+    }
+    match @moonflux.parse_flux_query_result(body.text()) {
+      Ok(parsed) => Ok(parsed)
+      Err(error) => Err(error)
+    }
+  } catch {
+    _ => Err("failed to query InfluxDB or decode Flux result tables")
+  }
+}
+
+///|
 /// Normalize the configured server URL and remove one trailing slash.
 fn base_url(client : Client) -> String {
   if client.config.url.has_suffix("/") {

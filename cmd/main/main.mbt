@@ -72,13 +72,29 @@ async fn run_query(args : Array[String]) -> Unit {
     return
   }
   let client = @client.new_client(config)
-  match client.query(query) {
-    Ok(parsed) => {
-      println(parsed.columns.map(column => column.name).join(","))
-      for row in parsed.rows {
-        println(row.values.join(","))
+  let format = option(args, ["--format", "-f"], "table")
+  match client.query_flux(query) {
+    Ok(parsed) =>
+      if format == "json" {
+        println(@moonflux.flux_query_result_json(parsed))
+      } else {
+        println("tables: \{parsed.table_count()}")
+        for table_index in 0..<parsed.tables.length() {
+          let table = parsed.tables[table_index]
+          println(
+            "table \{table_index}: \{table.row_count()} rows | group: " +
+            table.group_key_string(0),
+          )
+          println(table.column_names().join(","))
+          for row in table.rows {
+            println(
+              row
+              .map(cell => @moonflux.flux_value_display(cell.value))
+              .join(","),
+            )
+          }
+        }
       }
-    }
     Err(error) => println(error)
   }
 }
@@ -185,6 +201,9 @@ fn print_help() -> Unit {
   )
   println(
     "  moonflux query --url ... --token ... --org ... --query \"from(bucket: \\\"mybucket\\\")\"",
+  )
+  println(
+    "  moonflux query --format json --url ... --token ... --org ... --query \"...\"",
   )
   println("  moonflux encode --measurement weather --field 21.5")
 }
