@@ -44,7 +44,7 @@ moon run --target native cmd/main -- write \
   --bucket "$MOONFLUX_BUCKET" \
   --data "air,host=host-b pm25=48i"
 
-QUERY="from(bucket: \"$MOONFLUX_BUCKET\") |> range(start: -1h) |> filter(fn: (r) => r._measurement == \"weather\" or r._measurement == \"air\") |> group(columns: [\"_measurement\", \"host\"]) |> mean()"
+QUERY="from(bucket: \"$MOONFLUX_BUCKET\") |> range(start: -1h) |> filter(fn: (r) => r._measurement == \"weather\" or r._measurement == \"air\") |> filter(fn: (r) => r._field == \"temperature\" or r._field == \"pm25\") |> group(columns: [\"_measurement\", \"host\"]) |> mean()"
 
 OUTPUT="$(moon run --target native cmd/main -- query \
   --url "$MOONFLUX_URL" \
