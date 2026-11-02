@@ -60,10 +60,10 @@ pub(all) struct AnnotatedRow {
 }
 
 pub(all) struct BatchLimits {
-  max_points : Int
-  max_bytes : Int
+  max_points : Int32
+  max_bytes : Int32
 }
-pub fn BatchLimits::new(Int, Int) -> Self
+pub fn BatchLimits::new(Int32, Int32) -> Self
 
 pub(all) enum FieldValue {
   IntValue(Int64)
@@ -88,20 +88,20 @@ pub(all) struct FluxColumn {
 pub(all) struct FluxQueryResult {
   tables : Array[FluxTable]
 }
-pub fn FluxQueryResult::table_count(Self) -> Int
+pub fn FluxQueryResult::table_count(Self) -> Int32
 
 pub(all) struct FluxTable {
   columns : Array[FluxColumn]
   rows : Array[Array[FluxCell]]
 }
-pub fn FluxTable::column_index(Self, String) -> Int?
+pub fn FluxTable::column_index(Self, String) -> Int32?
 pub fn FluxTable::column_names(Self) -> Array[String]
 pub fn FluxTable::field(Self) -> String?
-pub fn FluxTable::group_key_string(Self, Int) -> String
-pub fn FluxTable::group_pairs(Self, Int) -> Array[(String, String)]
+pub fn FluxTable::group_key_string(Self, Int32) -> String
+pub fn FluxTable::group_pairs(Self, Int32) -> Array[(String, String)]
 pub fn FluxTable::measurement(Self) -> String?
-pub fn FluxTable::row_count(Self) -> Int
-pub fn FluxTable::string_value(Self, Int, String) -> String?
+pub fn FluxTable::row_count(Self) -> Int32
+pub fn FluxTable::string_value(Self, Int32, String) -> String?
 pub fn FluxTable::table_id(Self) -> String?
 
 pub(all) enum FluxValue {

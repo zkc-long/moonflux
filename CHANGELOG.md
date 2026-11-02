@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2
+
+- Align generated package interfaces with the current MoonBit Int32 representation.
+- Preserve reproducible package checks after adding batching and benchmarks.
+
 ## 0.1.1
 
 - Add multi-table Flux result semantics, typed cells, group keys, and JSON output.
