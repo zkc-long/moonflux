@@ -4,6 +4,8 @@ package "zkc-long/moonflux"
 // Values
 pub fn encode_point(Point) -> Result[String, String]
 
+pub fn encode_point_batches(Array[Point], BatchLimits) -> Result[Array[String], String]
+
 pub fn encode_points(Array[Point]) -> Result[String, String]
 
 pub fn escape_key_like(String) -> String
@@ -27,6 +29,8 @@ pub fn parse_flux_query_result(String) -> Result[FluxQueryResult, String]
 pub fn parse_line(String) -> Result[Point, String]
 
 pub fn parse_lines(String) -> Result[Array[Point], String]
+
+pub fn split_line_protocol(String, BatchLimits) -> Result[Array[String], String]
 
 pub fn unescape_key_like(String) -> String
 
@@ -54,6 +58,12 @@ pub(all) struct AnnotatedCsv {
 pub(all) struct AnnotatedRow {
   values : Array[String]
 }
+
+pub(all) struct BatchLimits {
+  max_points : Int
+  max_bytes : Int
+}
+pub fn BatchLimits::new(Int, Int) -> Self
 
 pub(all) enum FieldValue {
   IntValue(Int64)

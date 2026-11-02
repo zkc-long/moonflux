@@ -55,10 +55,35 @@ async fn run_write(args : Array[String]) -> Unit {
     return
   }
   let precision = option(args, ["--precision", "-p"], "ns")
+  let batch_size = int_option(args, ["--batch-size"], 5000)
+  let batch_bytes = int_option(args, ["--batch-bytes"], 1048576)
+  let batches = match
+    @moonflux.split_line_protocol(
+      data,
+      @moonflux.BatchLimits::new(batch_size, batch_bytes),
+    ) {
+    Ok(batches) => batches
+    Err(error) => {
+      println(error)
+      return
+    }
+  }
+  if has_flag(args, ["--dry-run"]) {
+    println("dry-run: \{batches.length()} batches")
+    return
+  }
   let client = @client.new_client(config)
-  match client.write_with_precision(data, precision) {
-    Ok(status) => println("write accepted with status \{status}")
-    Err(error) => println(error)
+  for index in 0..<batches.length() {
+    match client.write_with_precision(batches[index], precision) {
+      Ok(status) =>
+        println(
+          "write accepted with status \{status} (batch \{index + 1}/\{batches.length()})",
+        )
+      Err(error) => {
+        println(error)
+        return
+      }
+    }
   }
 }
 
@@ -155,6 +180,34 @@ fn env_or(name : String, default : String) -> String {
 }
 
 ///|
+/// Parse an integer option or return a default.
+fn int_option(
+  args : Array[String],
+  names : Array[String],
+  default : Int32,
+) -> Int32 {
+  let raw = option(args, names, "")
+  if raw.is_empty() {
+    default
+  } else {
+    @string.parse_int(raw) catch {
+      _ => default
+    }
+  }
+}
+
+///|
+/// Check whether a boolean flag is present.
+fn has_flag(args : Array[String], names : Array[String]) -> Bool {
+  for i in 1..<args.length() {
+    if names.contains(args[i]) {
+      return true
+    }
+  }
+  false
+}
+
+///|
 /// Return an option value or a default.
 fn option(
   args : Array[String],
@@ -198,6 +251,9 @@ fn print_help() -> Unit {
   )
   println(
     "  moonflux write --url ... --token ... --org ... --bucket ... --file points.lp --precision ns",
+  )
+  println(
+    "  moonflux write --url ... --token ... --org ... --bucket ... --file points.lp --batch-size 5000 --batch-bytes 1048576",
   )
   println(
     "  moonflux query --url ... --token ... --org ... --query \"from(bucket: \\\"mybucket\\\")\"",

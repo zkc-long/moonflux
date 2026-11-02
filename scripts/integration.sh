@@ -21,28 +21,8 @@ moon run --target native cmd/main -- write \
   --token "$MOONFLUX_TOKEN" \
   --org "$MOONFLUX_ORG" \
   --bucket "$MOONFLUX_BUCKET" \
-  --data "weather,host=host-a temperature=21.5,ok=true"
-
-moon run --target native cmd/main -- write \
-  --url "$MOONFLUX_URL" \
-  --token "$MOONFLUX_TOKEN" \
-  --org "$MOONFLUX_ORG" \
-  --bucket "$MOONFLUX_BUCKET" \
-  --data "air,host=host-a pm25=35i"
-
-moon run --target native cmd/main -- write \
-  --url "$MOONFLUX_URL" \
-  --token "$MOONFLUX_TOKEN" \
-  --org "$MOONFLUX_ORG" \
-  --bucket "$MOONFLUX_BUCKET" \
-  --data "weather,host=host-b temperature=22.5,ok=true"
-
-moon run --target native cmd/main -- write \
-  --url "$MOONFLUX_URL" \
-  --token "$MOONFLUX_TOKEN" \
-  --org "$MOONFLUX_ORG" \
-  --bucket "$MOONFLUX_BUCKET" \
-  --data "air,host=host-b pm25=48i"
+  --batch-size 1 \
+  --data $'weather,host=host-a temperature=21.5,ok=true\nair,host=host-a pm25=35i\nweather,host=host-b temperature=22.5,ok=true\nair,host=host-b pm25=48i'
 
 QUERY="from(bucket: \"$MOONFLUX_BUCKET\") |> range(start: -1h) |> filter(fn: (r) => r._measurement == \"weather\" or r._measurement == \"air\") |> filter(fn: (r) => r._field == \"temperature\" or r._field == \"pm25\") |> group(columns: [\"_measurement\", \"host\"]) |> mean()"
 
