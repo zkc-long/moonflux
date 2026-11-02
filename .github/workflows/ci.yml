@@ -73,3 +73,16 @@ jobs:
 
       - name: Run deterministic benchmarks
         run: moon run --target native bench
+
+  package-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Verify Mooncakes installation
+        run: bash scripts/package-smoke.sh

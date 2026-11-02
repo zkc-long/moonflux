@@ -108,6 +108,12 @@ The deterministic benchmark covers 10,000 point encodings, 10,000 Line
 Protocol rows, and 10,000 multi-table annotated CSV rows. Measured data is in
 `docs/BENCHMARKS.zh-CN.md`.
 
+The published package itself is verified with:
+
+```text
+bash scripts/package-smoke.sh
+```
+
 ## Development
 
 ```text
