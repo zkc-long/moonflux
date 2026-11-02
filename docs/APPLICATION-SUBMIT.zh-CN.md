@@ -43,4 +43,6 @@ MoonFlux 是原创项目，不是移植项目，没有复制其他 InfluxDB 客�
 
 https://github.com/zkc-long/moonflux
 
-仓库保留公开开发历史、README、可运行示例、单元测试、native 测试、Docker Compose 验收环境和真实 InfluxDB 集成测试。当前已有超过 10 个有效 commit，最新 CI 的单元测试与真实服务集成任务均通过。
+Mooncakes 包：https://mooncakes.io/docs/zkc-long/moonflux
+
+仓库保留公开开发历史、README、可运行示例、25 个边界与协议测试、native 测试、确定性基准、Docker Compose 验收环境和真实 InfluxDB 集成测试。当前已有超过 10 个有效 commit，最新 CI 的单元测试、基准任务与真实服务集成任务均通过。
