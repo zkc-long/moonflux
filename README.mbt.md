@@ -15,7 +15,7 @@ MoonFlux is a pure MoonBit InfluxDB v2 toolkit:
 ## Install
 
 ```text
-moon add zkc-long/moonflux
+moon add zkc-long/moonflux@0.1.1
 ```
 
 ## Library

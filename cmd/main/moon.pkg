@@ -9,4 +9,4 @@ import {
 
 pkgtype(kind: "executable")
 
-supported_targets = "+native+js"
+supported_targets = "+native"
