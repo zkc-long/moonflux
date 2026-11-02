@@ -8,6 +8,8 @@ MoonFlux is a pure MoonBit InfluxDB v2 toolkit:
 - multi-table Flux result model with typed cells and group keys
 - small HTTP client for `/health`, `/api/v2/write`, and `/api/v2/query`
 - command-line interface for ping, write, query, and encode
+- bounded batch splitting for large Line Protocol payloads
+- reproducible benchmarks and boundary tests
 - Docker-based integration smoke test against a real InfluxDB v2 instance
 
 ## Install
@@ -69,6 +71,7 @@ match client.query_flux("from(bucket: \"my-bucket\") |> range(start: -1h)") {
 moon run --target native cmd/main -- ping --url http://localhost:8086
 moon run --target native cmd/main -- write --url http://localhost:8086 --token my-token --org my-org --bucket my-bucket --data "weather,location=shanghai temperature=21.5"
 moon run --target native cmd/main -- write --url http://localhost:8086 --token my-token --org my-org --bucket my-bucket --file points.lp --precision ns
+moon run --target native cmd/main -- write --url http://localhost:8086 --token my-token --org my-org --bucket my-bucket --file points.lp --batch-size 5000 --batch-bytes 1048576
 moon run --target native cmd/main -- query --url http://localhost:8086 --token my-token --org my-org --query "from(bucket: \"my-bucket\")"
 moon run --target native cmd/main -- query --format json --url http://localhost:8086 --token my-token --org my-org --query "from(bucket: \"my-bucket\") |> group(columns: [\"host\"])"
 moon run --target native cmd/main -- encode --measurement weather --field 21.5
@@ -94,6 +97,16 @@ docker compose up -d
 bash scripts/integration.sh
 docker compose down
 ```
+
+## Benchmarks
+
+```text
+moon run --target native bench
+```
+
+The deterministic benchmark covers 10,000 point encodings, 10,000 Line
+Protocol rows, and 10,000 multi-table annotated CSV rows. Measured data is in
+`docs/BENCHMARKS.zh-CN.md`.
 
 ## Development
 

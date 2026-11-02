@@ -57,3 +57,19 @@ jobs:
       - name: Stop InfluxDB
         if: always()
         run: docker compose down -v
+
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install MoonBit
+        run: |
+          curl -fsSL https://cli.moonbitlang.com/install/unix.sh | bash
+          echo "$HOME/.moon/bin" >> "$GITHUB_PATH"
+
+      - name: Update dependencies
+        run: moon update
+
+      - name: Run deterministic benchmarks
+        run: moon run --target native bench

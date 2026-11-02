@@ -26,13 +26,14 @@ MoonFlux 为 MoonBit 生态补齐 InfluxDB v2 时序数据接入能力。项目�
 - InfluxDB v2 客户端：`/health`、`/api/v2/write`、`/api/v2/query`。
 - Flux 结果语义：多表 section、`table` 列逻辑表切换、每表独立 schema、`#datatype`、`#group`、`#default`、typed cells、group key 和 JSON 输出。
 - 多表案例：支持 `group()`、`union()`、`aggregateWindow()` 等查询产生的多 measurement、多 host、多窗口结果。
-- CLI：`ping`、`write`、`query`、`encode`、文件批量写入、precision、环境变量和 `--format json`。
+- 批量传输：按点数和字节上限切分 Line Protocol，避免大 payload 一次性提交。
+- CLI：`ping`、`write`、`query`、`encode`、文件批量写入、precision、环境变量、`--batch-size`、`--batch-bytes` 和 `--format json`。
 
 范围边界：暂不支持 InfluxDB 3 Flight/Arrow、InfluxDB 1.x、OAuth、自动重试和 gzip；这些不影响当前协议闭环。
 
 ## 6. 技术路线与验证
 
-采用 MoonBit 分层实现：`moonflux.mbt` 负责数据模型，`line_protocol.mbt`/`escape.mbt` 负责协议编解码，`flux_result.mbt` 负责多表查询语义，`client/` 负责网络接口，`cmd/main/` 提供 CLI。核心测试覆盖单表、多表、类型错误、转义、校验和 JSON 输出；CI 使用真实 InfluxDB v2 执行写入、分组查询和多表断言。
+采用 MoonBit 分层实现：`moonflux.mbt` 负责数据模型，`line_protocol.mbt`/`escape.mbt` 负责协议编解码，`batch.mbt` 负责批量边界，`flux_result.mbt` 负责多表查询语义，`client/` 负责网络接口，`cmd/main/` 提供 CLI。核心测试覆盖单表、多表、类型错误、转义、校验、批量边界和 JSON 输出；CI 使用真实 InfluxDB v2 执行写入、分组查询和多表断言，并运行确定性基准。
 
 ## 7. 原创性与开源说明
 

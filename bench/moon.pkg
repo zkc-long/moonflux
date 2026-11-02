@@ -1,0 +1,6 @@
+import {
+  "zkc-long/moonflux",
+  "moonbitlang/core/bench" @benchlib,
+}
+
+pkgtype(kind: "executable")
